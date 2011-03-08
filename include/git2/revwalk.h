@@ -28,6 +28,7 @@
 #include "common.h"
 #include "types.h"
 #include "object.h"
+#include "oid.h"
 
 /**
  * @file git2/revwalk.h
