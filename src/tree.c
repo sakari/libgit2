@@ -45,6 +45,14 @@ int entry_search_cmp(const void *key, const void *array_member)
 	return strcmp(filename, entry->filename);
 }
 
+int entry_alpha_sort_cmp(const void *a, const void *b)
+{
+	const git_tree_entry *entry_a = *(const git_tree_entry **)(a);
+	const git_tree_entry *entry_b = *(const git_tree_entry **)(b);
+
+	return strcmp(entry_a->filename, entry_b->filename);
+}
+
 #if 0
 static int valid_attributes(const int attributes) {
 	return attributes >= 0 && attributes <= MAX_FILEMODE; 
@@ -112,7 +120,13 @@ const git_tree_entry *git_tree_entry_byname(git_tree *tree, const char *filename
 
 	assert(tree && filename);
 
+	/* HACK to sort alphabetically the list */
+	tree->entries._cmp = &entry_alpha_sort_cmp;
+	tree->entries.sorted = 0;
 	idx = git_vector_bsearch2(&tree->entries, entry_search_cmp, filename);
+	tree->entries._cmp = &entry_sort_cmp;
+	tree->entries.sorted = 0;
+
 	if (idx == GIT_ENOTFOUND)
 		return NULL;
 
