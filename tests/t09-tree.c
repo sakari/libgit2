@@ -225,6 +225,29 @@ BEGIN_TEST(lookup_fails_for_name, "failure: lookup of 'b' fails")
         close_temp_repo(repo);
 END_TEST
 
+BEGIN_TEST(remove_fails, "failure: remove of 'b' fails")
+	git_repository *repo;
+        git_treebuilder *builder;
+        git_tree *tree;
+        git_oid oid, tree_oid;
+        
+        must_pass(git_oid_mkstr(&oid, "0000000000000000000000000000000000000000"));
+	must_pass(open_temp_repo(&repo, REPOSITORY_FOLDER));
+
+	//create subtree, it does not seem to matter in which order
+        //the entries are created just that there are these three
+        //entries.
+	must_pass(git_treebuilder_create(&builder, NULL));
+        must_pass(git_treebuilder_insert(NULL, builder, "ba", &oid, 040000));
+        must_pass(git_treebuilder_insert(NULL, builder, "a", &oid, 0));
+        must_pass(git_treebuilder_insert(NULL, builder, "b", &oid, 0));
+        must_pass(git_treebuilder_remove(builder, "b"));
+	git_treebuilder_free(builder);
+        
+	git_tree_close(tree);
+        close_temp_repo(repo);
+END_TEST
+
 BEGIN_SUITE(tree)
 	//ADD_TEST(print0);
 	ADD_TEST(read0);
@@ -234,5 +257,6 @@ BEGIN_SUITE(tree)
 	ADD_TEST(write2);
 	ADD_TEST(write3);
 	ADD_TEST(lookup_fails_for_name);
+	ADD_TEST(remove_fails);
 END_SUITE
 
